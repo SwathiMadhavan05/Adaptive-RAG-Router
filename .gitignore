@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+data/faiss_index/
+app/models/router_weights.pt
+app/models/label_map.json
+eval/results.csv
+*.egg-info/
+.pytest_cache/
+.DS_Store

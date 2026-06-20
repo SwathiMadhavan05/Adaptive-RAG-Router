@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive RAG Router</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <link rel="stylesheet" href="/frontend/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Adaptive <span>RAG</span> Router</h1>
+            <p>Routes each query to the cheapest strategy that can answer it correctly.</p>
+        </header>
+
+        <main>
+            <section class="search-section glass-panel">
+                <form id="query-form">
+                    <div class="input-group">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="query-input" placeholder="Ask a question... (e.g. What is 2+2? or How long is the refund window?)" required autocomplete="off">
+                        <button type="submit" id="submit-btn">
+                            <span class="btn-text">Route</span>
+                            <div class="loader hidden"></div>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <div id="empty-state" class="empty-state">
+                <div class="empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <h2>Ready to Route</h2>
+                <p>Enter a query above to see the adaptive routing in action.</p>
+            </div>
+
+            <div id="results-container" class="results-container hidden">
+                <div class="grid-layout">
+                    <!-- Router Decision -->
+                    <section class="decision-section glass-panel">
+                        <h2>Router Decision</h2>
+                        <div class="selected-route">
+                            <span class="route-label" id="route-badge">PARAMETRIC</span>
+                            <span class="confidence-badge" id="confidence-badge">99% Confidence</span>
+                        </div>
+                        <p id="route-description" class="route-description">Answered from model memory without retrieval.</p>
+                        
+                        <div class="probabilities-container">
+                            <h3>Probability Distribution</h3>
+                            <div id="probs-list" class="probs-list">
+                                <!-- Bars will be injected here -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Metrics -->
+                    <section class="metrics-section glass-panel">
+                        <h2>Performance</h2>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                </span>
+                                <div class="metric-info">
+                                    <span class="metric-title">Latency</span>
+                                    <span class="metric-value" id="latency-val">0.00s</span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                </span>
+                                <div class="metric-info">
+                                    <span class="metric-title">Relative Cost</span>
+                                    <span class="metric-value" id="cost-val">1x</span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                </span>
+                                <div class="metric-info">
+                                    <span class="metric-title">Hops</span>
+                                    <span class="metric-value" id="hops-val">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Final Answer -->
+                <section class="answer-section glass-panel">
+                    <h2>Response</h2>
+                    <div class="answer-content" id="answer-text">
+                        <!-- Answer will be injected here -->
+                    </div>
+                </section>
+
+                <!-- Retrieved Context -->
+                <section class="context-section glass-panel hidden" id="context-section">
+                    <h2>Retrieved Context</h2>
+                    <div class="chunks-container" id="chunks-list">
+                        <!-- Chunks will be injected here -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/frontend/script_v2.js"></script>
+</body>
+</html>
