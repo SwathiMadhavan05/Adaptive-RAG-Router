@@ -1,3 +1,11 @@
+---
+title: Adaptive RAG Router
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+---
 # Adaptive RAG Router
 
 A RAG system that **routes each query to the cheapest strategy that can answer it correctly**, instead of always doing full retrieval. A trained classifier decides per-query whether to:
